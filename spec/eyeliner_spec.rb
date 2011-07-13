@@ -39,7 +39,7 @@ describe Eyeliner do
   context "with some explicit CSS" do
 
     before do
-      eyeliner.css << %{
+      eyeliner.add_css %{
         .box { border: 1px solid green; }
         .small { font-size: 8px; }
       }
@@ -73,7 +73,7 @@ describe Eyeliner do
   context "where multiple CSS rules apply" do
 
     before do
-      eyeliner.css << %{
+      eyeliner.add_css %{
         p { color: red; }
         p.small { text-decoration: underline; }
         .small { font-size: 8px; }

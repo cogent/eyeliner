@@ -3,8 +3,6 @@ require 'css_parser'
 
 class Eyeliner
 
-  attr_accessor :css
-
   def initialize
     @css = ""
   end
@@ -21,10 +19,14 @@ class Eyeliner
 
   end
 
+  def add_css(css)
+    @css << css
+  end
+
   def apply_to(input)
     fragment = Nokogiri::HTML.fragment(input)
     css_parser = CssParser::Parser.new
-    css_parser.add_block!(css)
+    css_parser.add_block!(@css)
     styles_by_element = Hash.new do |h,k|
       h[k] = []
     end
