@@ -1,3 +1,28 @@
+require 'nokogiri'
+require 'css_parser'
+
 module Eyeliner
-  # Your code goes here...
+
+  class Inliner
+
+    attr_accessor :css
+
+    def initialize
+      @css = ""
+    end
+
+    def inline(input)
+      fragment = Nokogiri::HTML.fragment(input)
+      css_parser = CssParser::Parser.new
+      css_parser.add_block!(css)
+      css_parser.each_selector do |selector, declarations, specificity|
+        fragment.css(selector).each do |element|
+          element['style'] = declarations
+        end
+      end
+      fragment.to_html
+    end
+
+  end
+
 end
