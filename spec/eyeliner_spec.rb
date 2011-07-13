@@ -70,5 +70,25 @@ describe Eyeliner::Inliner do
 
   end
 
+  context "where CSS rules conflict" do
+
+    before do
+      eyeliner.css << %{
+        p { color: red; }
+        p.small { text-decoration: underline; }
+        .small { font-size: 8px; }
+      }
+    end
+
+    describe "#inline" do
+
+      it "applies styles in order of specificity" do
+        should_modify %(<p class="small">xyz</p>),
+               :to => %(<p class="small" style="color: red; font-size: 8px; text-decoration: underline;">xyz</p>)
+      end
+
+    end
+
+  end
 
 end
