@@ -1,48 +1,44 @@
 require 'nokogiri'
 require 'css_parser'
 
-module Eyeliner
+class Eyeliner
 
-  class Inliner
+  attr_accessor :css
 
-    attr_accessor :css
+  def initialize
+    @css = ""
+  end
 
-    def initialize
-      @css = ""
+  StyleRule = Struct.new(:declarations, :specificity) do
+
+    def <=>(other)
+      specificity <=> other.specificity
     end
 
-    StyleRule = Struct.new(:declarations, :specificity) do
-
-      def <=>(other)
-        specificity <=> other.specificity
-      end
-
-      def to_s
-        declarations
-      end
-
+    def to_s
+      declarations
     end
 
-    def inline(input)
-      fragment = Nokogiri::HTML.fragment(input)
-      css_parser = CssParser::Parser.new
-      css_parser.add_block!(css)
-      styles_by_element = Hash.new do |h,k|
-        h[k] = []
-      end
-      css_parser.each_selector do |selector, declarations, specificity|
-        fragment.css(selector).each do |element|
-          styles_by_element[element] << StyleRule.new(declarations, specificity)
-        end
-      end
-      styles_by_element.each do |element, rules|
-        parts = rules.sort
-        parts.push(element["style"]) if element["style"]
-        element["style"] = parts.join(" ")
-      end
-      fragment.to_html
-    end
+  end
 
+  def apply_to(input)
+    fragment = Nokogiri::HTML.fragment(input)
+    css_parser = CssParser::Parser.new
+    css_parser.add_block!(css)
+    styles_by_element = Hash.new do |h,k|
+      h[k] = []
+    end
+    css_parser.each_selector do |selector, declarations, specificity|
+      fragment.css(selector).each do |element|
+        styles_by_element[element] << StyleRule.new(declarations, specificity)
+      end
+    end
+    styles_by_element.each do |element, rules|
+      parts = rules.sort
+      parts.push(element["style"]) if element["style"]
+      element["style"] = parts.join(" ")
+    end
+    fragment.to_html
   end
 
 end

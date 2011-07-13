@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe Eyeliner::Inliner do
+describe Eyeliner do
 
-  let(:eyeliner) { Eyeliner::Inliner.new }
+  let(:eyeliner) { Eyeliner.new }
 
   def should_not_modify(input)
-    eyeliner.inline(input).should == input
+    eyeliner.apply_to(input).should == input
   end
 
   def should_modify(input, options)
-    eyeliner.inline(input).should == options[:to]
+    eyeliner.apply_to(input).should == options[:to]
   end
 
   context "with no CSS" do
