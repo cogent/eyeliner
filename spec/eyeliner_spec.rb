@@ -70,7 +70,7 @@ describe Eyeliner::Inliner do
 
   end
 
-  context "where CSS rules conflict" do
+  context "where multiple CSS rules apply" do
 
     before do
       eyeliner.css << %{
@@ -85,6 +85,11 @@ describe Eyeliner::Inliner do
       it "applies styles in order of specificity" do
         should_modify %(<p class="small">xyz</p>),
                :to => %(<p class="small" style="color: red; font-size: 8px; text-decoration: underline;">xyz</p>)
+      end
+
+      it "retains contents of existing style attribute" do
+        should_modify %(<p style="border: 1px solid blue;">xyz</p>),
+               :to => %(<p style="color: red; border: 1px solid blue;">xyz</p>)
       end
 
     end

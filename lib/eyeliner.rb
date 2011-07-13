@@ -36,7 +36,9 @@ module Eyeliner
         end
       end
       styles_by_element.each do |element, rules|
-        element["style"] = rules.sort.join(" ")
+        parts = rules.sort
+        parts.push(element["style"]) if element["style"]
+        element["style"] = parts.join(" ")
       end
       fragment.to_html
     end
