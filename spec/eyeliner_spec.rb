@@ -41,17 +41,29 @@ describe Eyeliner::Inliner do
     before do
       eyeliner.css << %{
         .box { border: 1px solid green; }
+        .small { font-size: 8px; }
       }
     end
 
     describe "#inline" do
 
-      it "adds style attributes to matching elements" do
-        should_modify(%(<p class="box">xyz</p>), :to => %(<p class="box" style="border: 1px solid green;">xyz</p>))
-      end
-
       it "leaves non-matching elements alone" do
         should_not_modify("<p>xyz</p>")
+      end
+
+      it "adds style attributes to matching elements" do
+        should_modify %(<p class="box">xyz</p>),
+               :to => %(<p class="box" style="border: 1px solid green;">xyz</p>)
+      end
+
+      it "iterates into nested elements" do
+        should_modify %(<p><span class="small">xyz</span></p>),
+               :to => %(<p><span class="small" style="font-size: 8px;">xyz</span></p>)
+      end
+
+      it "combines all matching rules" do
+        should_modify %(<p class="small box">xyz</p>),
+               :to => %(<p class="small box" style="border: 1px solid green; font-size: 8px;">xyz</p>)
       end
 
     end

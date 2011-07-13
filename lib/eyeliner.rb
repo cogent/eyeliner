@@ -17,7 +17,11 @@ module Eyeliner
       css_parser.add_block!(css)
       css_parser.each_selector do |selector, declarations, specificity|
         fragment.css(selector).each do |element|
-          element['style'] = declarations
+          if element['style']
+            element['style'] = element['style'] + " " + declarations
+          else
+            element['style'] = declarations
+          end
         end
       end
       fragment.to_html
