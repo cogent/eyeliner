@@ -54,7 +54,12 @@ class Eyeliner
     private
 
     def parse_input
-      @doc = Nokogiri::HTML.fragment(@input)
+      @doc = case @input
+      when Nokogiri::XML::Node
+        @input
+      else
+        Nokogiri::HTML.parse(@input)
+      end
     end
 
     def extract_stylesheets

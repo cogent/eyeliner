@@ -4,12 +4,16 @@ describe Eyeliner do
 
   let(:eyeliner) { Eyeliner.new }
 
+  def parse_fragment(html)
+    Nokogiri::HTML.fragment(html)
+  end
+
   def should_not_modify(input)
-    eyeliner.apply_to(input).should == input
+    eyeliner.apply_to(parse_fragment(input)).should == input
   end
 
   def should_modify(input, options)
-    eyeliner.apply_to(input).should == options[:to]
+    eyeliner.apply_to(parse_fragment(input)).should == options[:to]
   end
 
   context "with no CSS" do
@@ -155,24 +159,25 @@ describe Eyeliner do
   context "when the document contains a linked stylesheet" do
 
     before do
+
+      $tmp_dir.mkdir
+      ($tmp_dir + "styles.css").open("w") do |css_io|
+        css_io.puts <<-CSS
+        .email h1 { text-decoration: underline; }
+        CSS
+      end
+
       @input = <<-HTML
       <html>
       <head>
         <link rel="stylesheet" href="styles.css" type="text/css" />
       </head>
-      <body>
-        <p>
-          Feeling <strong>STRONG</strong>.
-        </p>
+      <body class="email">
+        <h1>Hello</h1>
       </body>
       </html>
       HTML
-      $tmp_dir.mkdir
-      ($tmp_dir + "styles.css").open("w") do |css_io|
-        css_io.puts <<-CSS
-        strong { text-decoration: underline; }
-        CSS
-      end
+
     end
 
     describe "#apply_to" do
@@ -184,8 +189,8 @@ describe Eyeliner do
       end
 
       it "inlines the styles" do
-        strong_element = @output_doc.css("strong").first
-        strong_element["style"].should == "text-decoration: underline;"
+        h1_element = @output_doc.css("h1").first
+        h1_element["style"].should == "text-decoration: underline;"
       end
 
       it "removes the <link> element" do
