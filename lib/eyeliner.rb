@@ -58,12 +58,14 @@ class Eyeliner
     end
 
     def extract_stylesheets
-      @doc.css("style").each do |style_element|
-        @css << style_element.content
-        style_element.remove
-      end
-      @doc.css("link[rel=stylesheet][type='text/css']").each do |stylesheet_link|
-        @css << read_stylesheet(stylesheet_link["href"])
+      @doc.css("style, link[rel=stylesheet][type='text/css']").each do |element|
+        case element.name
+        when "style"
+          @css << element.content
+        when "link"
+          @css << read_stylesheet(element["href"])
+        end
+        element.remove
       end
     end
 

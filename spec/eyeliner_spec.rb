@@ -188,8 +188,8 @@ describe Eyeliner do
         strong_element["style"].should == "text-decoration: underline;"
       end
 
-      it "removes the <style> element" do
-        @output_doc.css("style").should be_empty
+      it "removes the <link> element" do
+        @output_doc.css("link").should be_empty
       end
 
     end
