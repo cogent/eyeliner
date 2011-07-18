@@ -24,23 +24,55 @@ class Eyeliner
   end
 
   def apply_to(input)
-    fragment = Nokogiri::HTML.fragment(input)
-    css_parser = CssParser::Parser.new
-    css_parser.add_block!(@css)
-    styles_by_element = Hash.new do |h,k|
-      h[k] = []
+    Application.new(input, @css).apply
+  end
+
+  # encapsulates the application of CSS to some HTML input
+  class Application
+
+    def initialize(input, css)
+      @input = input
+      @css = css
     end
-    css_parser.each_selector do |selector, declarations, specificity|
-      fragment.css(selector).each do |element|
-        styles_by_element[element] << StyleRule.new(declarations, specificity)
+
+    def apply
+      parse_input
+      parse_css
+      map_styles_to_elements
+      apply_styles_to_elements
+      @doc.to_html
+    end
+
+    private
+
+    def parse_input
+      @doc = Nokogiri::HTML.fragment(@input)
+    end
+
+    def parse_css
+      @css_parser = CssParser::Parser.new
+      @css_parser.add_block!(@css)
+      @styles_by_element = Hash.new do |h,k|
+        h[k] = []
       end
     end
-    styles_by_element.each do |element, rules|
-      parts = rules.sort
-      parts.push(element["style"]) if element["style"]
-      element["style"] = parts.join(" ")
+
+    def map_styles_to_elements
+      @css_parser.each_selector do |selector, declarations, specificity|
+        @doc.css(selector).each do |element|
+          @styles_by_element[element] << StyleRule.new(declarations, specificity)
+        end
+      end
     end
-    fragment.to_html
+
+    def apply_styles_to_elements
+      @styles_by_element.each do |element, rules|
+        parts = rules.sort
+        parts.push(element["style"]) if element["style"]
+        element["style"] = parts.join(" ")
+      end
+    end
+
   end
 
 end
