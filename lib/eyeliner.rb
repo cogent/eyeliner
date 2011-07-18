@@ -7,6 +7,8 @@ class Eyeliner
     @css = ""
   end
 
+  attr_accessor :stylesheet_base
+
   StyleRule = Struct.new(:declarations, :specificity) do
 
     def <=>(other)
@@ -23,20 +25,26 @@ class Eyeliner
     @css << css
   end
 
+  def css
+    @css.dup
+  end
+
   def apply_to(input)
-    Application.new(input, @css).apply
+    Application.new(self, input).apply
   end
 
   # encapsulates the application of CSS to some HTML input
   class Application
 
-    def initialize(input, css)
+    def initialize(eyeliner, input)
+      @eyeliner = eyeliner
       @input = input
-      @css = css
+      @css = @eyeliner.css
     end
 
     def apply
       parse_input
+      extract_stylesheets
       parse_css
       map_styles_to_elements
       apply_styles_to_elements
@@ -47,6 +55,21 @@ class Eyeliner
 
     def parse_input
       @doc = Nokogiri::HTML.fragment(@input)
+    end
+
+    def extract_stylesheets
+      @doc.css("style").each do |style_element|
+        @css << style_element.content
+        style_element.remove
+      end
+      @doc.css("link[rel=stylesheet][type='text/css']").each do |stylesheet_link|
+        @css << read_stylesheet(stylesheet_link["href"])
+      end
+    end
+
+    def read_stylesheet(name)
+      full_path = File.join(@eyeliner.stylesheet_base, name)
+      File.read(full_path)
     end
 
     def parse_css

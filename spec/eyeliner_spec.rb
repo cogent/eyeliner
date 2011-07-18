@@ -96,4 +96,88 @@ describe Eyeliner do
 
   end
 
+  context "when the document contains a <style> block" do
+
+    before do
+      @input = <<-HTML
+      <html>
+      <head>
+        <style>
+          strong { text-decoration: underline; }
+        </style>
+      </head>
+      <body>
+        <p>
+          Feeling <strong>STRONG</strong>.
+        </p>
+      </body>
+      </html>
+      HTML
+    end
+
+    describe "#apply_to" do
+
+      before do
+        @output = eyeliner.apply_to(@input)
+        @output_doc = Nokogiri::HTML.fragment(@output)
+      end
+
+      it "inlines the styles" do
+        strong_element = @output_doc.css("strong").first
+        strong_element["style"].should == "text-decoration: underline;"
+      end
+
+      it "removes the <style> element" do
+        @output_doc.css("style").should be_empty
+      end
+
+    end
+
+  end
+
+
+  context "when the document contains a linked stylesheet" do
+
+    before do
+      @input = <<-HTML
+      <html>
+      <head>
+        <link rel="stylesheet" href="styles.css" type="text/css" />
+      </head>
+      <body>
+        <p>
+          Feeling <strong>STRONG</strong>.
+        </p>
+      </body>
+      </html>
+      HTML
+      $tmp_dir.mkdir
+      ($tmp_dir + "styles.css").open("w") do |css_io|
+        css_io.puts <<-CSS
+        strong { text-decoration: underline; }
+        CSS
+      end
+    end
+
+    describe "#apply_to" do
+
+      before do
+        eyeliner.stylesheet_base = $tmp_dir.to_s
+        @output = eyeliner.apply_to(@input)
+        @output_doc = Nokogiri::HTML.fragment(@output)
+      end
+
+      it "inlines the styles" do
+        strong_element = @output_doc.css("strong").first
+        strong_element["style"].should == "text-decoration: underline;"
+      end
+
+      it "removes the <style> element" do
+        @output_doc.css("style").should be_empty
+      end
+
+    end
+
+  end
+
 end
