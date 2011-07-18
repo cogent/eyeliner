@@ -16,6 +16,12 @@ describe Eyeliner do
     eyeliner.apply_to(parse_fragment(input)).should == options[:to]
   end
 
+  it "can be initialized with attributes" do
+    eyeliner = Eyeliner.new(:stylesheet_base => "STYLESHEETS", :css => "SOME CSS")
+    eyeliner.stylesheet_base.should == "STYLESHEETS"
+    eyeliner.css.should == "SOME CSS"
+  end
+
   context "with no CSS" do
 
     describe "#inline" do

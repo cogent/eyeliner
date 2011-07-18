@@ -3,8 +3,9 @@ require 'css_parser'
 
 class Eyeliner
 
-  def initialize
-    @css = ""
+  def initialize(attributes = {})
+    @css = attributes[:css] || ""
+    @stylesheet_base = attributes[:stylesheet_base]
   end
 
   attr_accessor :stylesheet_base
