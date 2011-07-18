@@ -82,7 +82,7 @@ class Eyeliner
 
     def map_styles_to_elements
       @css_parser.each_selector do |selector, declarations, specificity|
-        @doc.css(selector).each do |element|
+        @doc.css(selector, PsuedoClassHandler.new).each do |element|
           @styles_by_element[element] << StyleRule.new(declarations, specificity)
         end
       end
@@ -93,6 +93,16 @@ class Eyeliner
         parts = rules.sort
         parts.push(element["style"]) if element["style"]
         element["style"] = parts.join(" ")
+      end
+    end
+
+  end
+
+  class PsuedoClassHandler
+
+    %w(visited active hover focus).each do |psuedo_class|
+      define_method(psuedo_class) do |node_set|
+        []
       end
     end
 

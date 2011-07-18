@@ -66,6 +66,7 @@ describe Eyeliner do
                :to => %(<p class="small box" style="border: 1px solid green; font-size: 8px;">xyz</p>)
       end
 
+
     end
 
   end
@@ -94,6 +95,22 @@ describe Eyeliner do
 
     end
 
+  end
+
+  %w(visited active hover focus).each do |pseudo_class|
+    context "when CSS rule contains pseudo-class :#{pseudo_class}" do
+
+      before do
+        eyeliner.add_css %{
+          a:#{pseudo_class} { color: red; }
+        }
+      end
+
+      it "is ignored" do
+        should_not_modify("<a>xyz</a>")
+      end
+
+    end
   end
 
   context "when the document contains a <style> block" do
@@ -134,7 +151,6 @@ describe Eyeliner do
     end
 
   end
-
 
   context "when the document contains a linked stylesheet" do
 
