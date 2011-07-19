@@ -176,7 +176,7 @@ describe Eyeliner do
       @input = <<-HTML
       <html>
       <head>
-        <link rel="stylesheet" href="styles.css" type="text/css" />
+        <link rel="stylesheet" href="styles.css?version=123" type="text/css" />
       </head>
       <body class="email">
         <h1>Hello</h1>

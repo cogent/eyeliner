@@ -76,7 +76,8 @@ class Eyeliner
     end
 
     def read_stylesheet(name)
-      full_path = File.join(@eyeliner.stylesheet_base, name)
+      name_without_query = name.sub(%r{\?.*}, '')
+      full_path = File.join(@eyeliner.stylesheet_base, name_without_query)
       File.read(full_path)
     end
 
