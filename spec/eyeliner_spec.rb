@@ -162,6 +162,46 @@ describe Eyeliner do
 
   end
 
+  context "when the document contains a <style> block, classed noinline" do
+
+    before do
+      @input = <<-HTML
+      <html>
+      <head>
+        <style class="noinline">
+          strong { text-decoration: underline; }
+        </style>
+      </head>
+      <body>
+        <p>
+          Feeling <strong>STRONG</strong>.
+        </p>
+      </body>
+      </html>
+      HTML
+    end
+
+    describe "#apply_to" do
+
+      before do
+        @output = eyeliner.apply_to(@input)
+        @output_doc = Nokogiri::HTML.fragment(@output)
+      end
+
+      it "does not inline the styles" do
+        strong_element = @output_doc.css("strong").first
+        strong_element["style"].should_not == "text-decoration: underline;"
+      end
+
+      it "does not remove the <style> element" do
+        @output_doc.css("style").should_not be_empty
+      end
+
+    end
+
+  end
+
+
   context "when the document contains a linked stylesheet" do
 
     before do

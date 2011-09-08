@@ -65,6 +65,7 @@ class Eyeliner
 
     def extract_stylesheets
       @doc.css("style, link[rel=stylesheet][type='text/css']").each do |element|
+        next if element["class"] && element["class"].split.member?("noinline")
         case element.name
         when "style"
           @css << element.content
