@@ -65,17 +65,21 @@ class Eyeliner
 
     def extract_stylesheets
       @doc.css("style, link[rel=stylesheet][type='text/css']").each do |element|
-        next if element["class"] && element["class"].split.member?("noinline")
+        next if has_class("noinline", element)
         case element.name
         when "style"
           @css << element.content
         when "link"
           @css << read_stylesheet(element["href"])
         end
-        element.remove
+        element.remove unless has_class("retain", element)
       end
     end
 
+    def has_class(class_name, element)
+      element["class"] && element["class"].split.member?(class_name)
+    end
+    
     def read_stylesheet(name)
       name_without_query = name.sub(%r{\?.*}, '')
       full_path = File.join(@eyeliner.stylesheet_base, name_without_query)
