@@ -123,6 +123,21 @@ describe Eyeliner do
     end
   end
 
+  context "when CSS rule contains pseudo-class :link" do
+
+    before do
+      eyeliner.add_css %{
+        a:link { color: red; }
+      }
+    end
+
+    it "is not ignored" do
+      should_modify %(<a href="foo">xyz</a>),
+             :to => %(<a href="foo" style="color: red;">xyz</a>)
+    end
+
+  end
+
   context "when the document contains a <style> block" do
 
     before do

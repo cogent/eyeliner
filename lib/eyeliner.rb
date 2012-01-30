@@ -120,6 +120,10 @@ class Eyeliner
       end
     end
 
+    def link(node_set)
+      node_set
+    end
+    
   end
 
 end
